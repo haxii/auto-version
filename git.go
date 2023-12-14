@@ -8,17 +8,31 @@ import (
 )
 
 func GetLatestVersion(repo *git.Repository) (string, error) {
-	refs, tagErr := repo.Tags()
+	// tags
+	tagRefs, tagErr := repo.Tags()
 	if tagErr != nil {
 		return "", tagErr
 	}
 	tagMap := make(map[plumbing.Hash]string)
-	if err := refs.ForEach(func(t *plumbing.Reference) error {
+	if err := tagRefs.ForEach(func(t *plumbing.Reference) error {
 		tagMap[t.Hash()] = t.Name().Short()
 		return nil
 	}); err != nil {
 		return "", err
 	}
+
+	// annotated tags
+	tagObjRefs, tagObjErr := repo.TagObjects()
+	if tagObjErr != nil {
+		return "", tagObjErr
+	}
+	if err := tagObjRefs.ForEach(func(t *object.Tag) error {
+		tagMap[t.Target] = t.Name
+		return nil
+	}); err != nil {
+		return "", err
+	}
+
 	log, logErr := repo.Log(&git.LogOptions{
 		Order: git.LogOrderCommitterTime,
 	})

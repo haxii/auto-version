@@ -53,14 +53,14 @@ func main() {
 		os.Exit(1)
 	}
 	if len(inc) == 0 {
-		fmt.Printf("latest version %s, type patch, moior or major to bump, default is patch: ", ver)
+		fmt.Printf("latest version %s, type patch, minor or major to bump, default is patch: ", ver)
 		_, err = fmt.Scanln(&inc)
 		if err != nil && strings.Contains(err.Error(), "unexpected newline") {
 			err = nil
 		}
 		CheckIfError(err)
 		if len(inc) > 0 && !isIncValid(inc) {
-			CheckIfError(fmt.Errorf("invalid command %s, only patch, moior or major acceptted", inc))
+			CheckIfError(fmt.Errorf("invalid command %s, only patch, minor or major acceptted", inc))
 		}
 	}
 	newVer := ""
