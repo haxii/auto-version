@@ -20,19 +20,11 @@ func GetLatestVersion(repo *git.Repository) (*VerInfo, error) {
 	}
 	tagMap := make(map[plumbing.Hash]string)
 	if err := tagRefs.ForEach(func(t *plumbing.Reference) error {
-		tagMap[t.Hash()] = t.Name().Short()
-		return nil
-	}); err != nil {
-		return nil, err
-	}
-
-	// annotated tags
-	tagObjRefs, tagObjErr := repo.TagObjects()
-	if tagObjErr != nil {
-		return nil, tagObjErr
-	}
-	if err := tagObjRefs.ForEach(func(t *object.Tag) error {
-		tagMap[t.Target] = t.Name
+		if tObj, err := repo.TagObject(t.Hash()); err == nil {
+			tagMap[tObj.Target] = t.Name().Short()
+		} else {
+			tagMap[t.Hash()] = t.Name().Short()
+		}
 		return nil
 	}); err != nil {
 		return nil, err

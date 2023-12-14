@@ -37,6 +37,7 @@ func main() {
 			helpMessage()
 		}
 	}
+	//path = "/Users/zichao/workspace/sif"
 	repo, openErr := git.PlainOpen(path)
 	CheckIfError(openErr)
 	head, headErr := repo.Head()
