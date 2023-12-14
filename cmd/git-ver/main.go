@@ -72,7 +72,7 @@ func main() {
 	default:
 		newVer = ver.IncPatch().String()
 	}
-	if _, err = repo.CreateTag("v"+newVer, head.Hash(), &git.CreateTagOptions{Message: newVer}); err != nil {
+	if _, err = repo.CreateTag("v"+newVer, head.Hash(), nil); err != nil {
 		fmt.Printf("new version %s tag failed with error %s\n", newVer, err)
 	} else {
 		fmt.Printf("new version %s tagged\n", newVer)
