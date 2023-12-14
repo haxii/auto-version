@@ -7,42 +7,50 @@ import (
 	"io"
 )
 
-func GetLatestVersion(repo *git.Repository) (string, error) {
+type VerInfo struct {
+	Hash plumbing.Hash
+	Name string
+}
+
+func GetLatestVersion(repo *git.Repository) (*VerInfo, error) {
 	// tags
 	tagRefs, tagErr := repo.Tags()
 	if tagErr != nil {
-		return "", tagErr
+		return nil, tagErr
 	}
 	tagMap := make(map[plumbing.Hash]string)
 	if err := tagRefs.ForEach(func(t *plumbing.Reference) error {
 		tagMap[t.Hash()] = t.Name().Short()
 		return nil
 	}); err != nil {
-		return "", err
+		return nil, err
 	}
 
 	// annotated tags
 	tagObjRefs, tagObjErr := repo.TagObjects()
 	if tagObjErr != nil {
-		return "", tagObjErr
+		return nil, tagObjErr
 	}
 	if err := tagObjRefs.ForEach(func(t *object.Tag) error {
 		tagMap[t.Target] = t.Name
 		return nil
 	}); err != nil {
-		return "", err
+		return nil, err
 	}
 
 	log, logErr := repo.Log(&git.LogOptions{
 		Order: git.LogOrderCommitterTime,
 	})
 	if logErr != nil {
-		return "", logErr
+		return nil, logErr
 	}
-	latestTag := ""
+	var latestTag *VerInfo
 	_ = log.ForEach(func(obj *object.Commit) error {
 		if tag, exists := tagMap[obj.Hash]; exists {
-			latestTag = tag
+			latestTag = &VerInfo{
+				Hash: obj.Hash,
+				Name: tag,
+			}
 			return io.EOF
 		}
 		return nil

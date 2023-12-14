@@ -43,13 +43,17 @@ func main() {
 	CheckIfError(headErr)
 	latestVer, verErr := git_ver.GetLatestVersion(repo)
 	CheckIfError(verErr)
-	if len(latestVer) == 0 {
+	if latestVer == nil {
 		fmt.Println("no latest version found")
 		return
 	}
-	ver, err := semver.NewVersion(latestVer)
+	ver, err := semver.NewVersion(latestVer.Name)
 	if err != nil {
-		fmt.Printf("latest version %s is not a valid semver: %s\n", latestVer, err)
+		fmt.Printf("latest version %s is not a valid semver: %s\n", latestVer.Name, err)
+		os.Exit(1)
+	}
+	if head.Hash() == latestVer.Hash {
+		fmt.Printf("head already tagged with version %s\n", latestVer.Name)
 		os.Exit(1)
 	}
 	if len(inc) == 0 {
