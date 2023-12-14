@@ -3,6 +3,8 @@ package git_ver
 import (
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
+	"github.com/go-git/go-git/v5/plumbing/object"
+	"io"
 )
 
 func GetLatestVersion(repo *git.Repository) (string, error) {
@@ -23,10 +25,13 @@ func GetLatestVersion(repo *git.Repository) (string, error) {
 	if logErr != nil {
 		return "", logErr
 	}
-	for obj, err := log.Next(); err == nil; {
+	latestTag := ""
+	_ = log.ForEach(func(obj *object.Commit) error {
 		if tag, exists := tagMap[obj.Hash]; exists {
-			return tag, nil
+			latestTag = tag
+			return io.EOF
 		}
-	}
-	return "", nil
+		return nil
+	})
+	return latestTag, nil
 }

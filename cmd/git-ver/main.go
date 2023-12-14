@@ -18,7 +18,7 @@ func CheckIfError(err error) {
 }
 
 func helpMessage() {
-	fmt.Printf("Usage: %s [patch|minor|major] to bump a version", os.Args[0])
+	fmt.Printf("Usage: %s [patch|minor|major] to bump a version\n", os.Args[0])
 	os.Exit(1)
 }
 
@@ -27,6 +27,8 @@ func isIncValid(inc string) bool {
 }
 
 func main() {
+	path, pathErr := os.Getwd()
+	CheckIfError(pathErr)
 	inc := ""
 	if len(os.Args) > 2 {
 		helpMessage()
@@ -35,7 +37,7 @@ func main() {
 			helpMessage()
 		}
 	}
-	repo, openErr := git.PlainOpen("./")
+	repo, openErr := git.PlainOpen(path)
 	CheckIfError(openErr)
 	head, headErr := repo.Head()
 	CheckIfError(headErr)
